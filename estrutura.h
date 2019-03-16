@@ -3,10 +3,11 @@
 #include <iostream>
 #include <fstream>
 #include <string>
+#include <list> 
 #define TAMANHO 20
 
 class RegisterData{
-    private:
+    public:
         unsigned int chave;
         std::string nome;
         unsigned int idade;
