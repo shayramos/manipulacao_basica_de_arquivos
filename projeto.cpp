@@ -137,7 +137,7 @@ void exibirRegistros(fstream &arquivo){
 
 	do{
 		arquivo.read((char*)buffer,sizeof(Registro));
-		cout << "//////////////////////////////////////////" << endl;
+		cout << "/////////////////// Registro " << (arquivo.tellg()/sizeof(Registro)) << "///////////////////////" << endl;
 		cout << "chave: " << buffer->chave << endl;
 		cout << "nome: " << buffer->nome << endl;
 		cout << "idade: " << buffer->idade << endl;
