@@ -11,13 +11,15 @@
 ///// Cálculo do Hashing/ReHashing usando hashing duplo ///////////////////
 
  unsigned int hashingDuplo(unsigned int key, int i, int b){ //Protótipo de função (útil mas custosa em operações);
-			unsigned int h1, h2;
+			unsigned int h1, h2, h2_aux; //hash1, hash2 e hash2_auxiliar;
 
             h1 = key % b;
-            h2 = ((int) key/b) % b;
-            if(h2 == 0){
+            h2_aux = ((int) key/b);
+            if(h2_aux == 0){
                 h2 = 1;
-            }
+            }else{
+				h2 = h2_aux % b;
+			}
 
             return (h1 + (i*h2)) % b; //O fato de realizar uma operação de "%" aqui serve para circular 
 }                                  // a lista de forma que não seja necessário usar um IF para circular a mesma;
@@ -49,12 +51,7 @@ int inserirRegistro(fstream &arquivo, Registro* reg){
 	for(int i = 0; i < TAMANHO; i++){
 			
 			pos_busca = hashingDuplo(reg->chave, i, TAMANHO);
-			//Se a posicao atual for igual a inicial e i > 0, indica que já circulou toda a estrutura e não há espaço disponível
-			//if((pos_busca == pos_ini) && (i > 0)){
-				//cout << "tabela cheia." << endl;
-			//	return 0;
-			//}
-
+			
 			////Caso haja espaço ou não percorreu a tabela toda;
 			arquivo.seekg(HEADER_OFFSET + (pos_busca * sizeof(Registro))); //Desloca-se para a posição do registro resultando do hash(k,i,b);
 			
@@ -87,7 +84,6 @@ int removerRegistro(fstream &arquivo, unsigned int key){
 		Registro *buffer = new Registro(0,0,VAZIO, "");
 
 		for(int i = 0; i < TAMANHO; i++){
-				//pos_busca = hashing(key,i,TAMANHO);
 				arquivo.seekg(HEADER_OFFSET + hashingDuplo(key,i,TAMANHO)*sizeof(Registro)); //Busca posição
 				
 				arquivo.read((char*)buffer, sizeof(Registro)); //Lê registro na posição 
@@ -159,7 +155,7 @@ int main(){
 
 	arquivo.open("database.bin", ios_base::in | ios_base::out | ios_base::binary ); //Abre o arquivo se já existir ou cria um novo caso contrário
 	if(!arquivo.is_open()){
-	//	cout << "Arquivo inexistente/com problema. Criando novo" << endl;
+	
 		//Cria-se um arquivo novo, fecha o mesmo e reabre com as flags ideais (in, out e binary);
 		//Esse processo todo foi feito por causa de problemas com "append"
 		arquivo.open("database.bin", ios_base::out);
