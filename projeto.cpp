@@ -157,14 +157,14 @@ int main(){
 	
 	fstream arquivo; //Objeto para leitura/escrita;
 
-	arquivo.open("database.txt", ios_base::in | ios_base::out | ios_base::binary ); //Abre o arquivo se já existir ou cria um novo caso contrário
+	arquivo.open("database.bin", ios_base::in | ios_base::out | ios_base::binary ); //Abre o arquivo se já existir ou cria um novo caso contrário
 	if(!arquivo.is_open()){
 	//	cout << "Arquivo inexistente/com problema. Criando novo" << endl;
 		//Cria-se um arquivo novo, fecha o mesmo e reabre com as flags ideais (in, out e binary);
 		//Esse processo todo foi feito por causa de problemas com "append"
-		arquivo.open("database.txt", ios_base::out);
+		arquivo.open("database.bin", ios_base::out);
 		arquivo.close();
-		arquivo.open("database.txt", ios_base::in | ios_base::out | ios_base::binary);
+		arquivo.open("database.bin", ios_base::in | ios_base::out | ios_base::binary);
 	}
 	
 
