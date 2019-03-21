@@ -11,6 +11,7 @@
 #include <iostream>
 #include <fstream>
 
+#include <cstring>
 #include <string>
 #include <cstring>
 using namespace std;

@@ -11,29 +11,70 @@
 #include "estrutura.h"
 
 
-///// Cálculo do Hashing/ReHashing usando sondagem linear de uma função só ///////////////////
- 
-int hashing(int k, int i, int b){  //Hash com chave K , valor de iteração i (oriundo de um FOR) e divisor 'b';
-		return (k+i)% b; //Retorna resto da divisão de (k+i) por b (valor de b é a quantia de posições (valor primo de preferência);
+///// Cálculo do Hashing/ReHashing usando sondagem linear ///////////////////
+
+/* 
+unsigned int hashingOverflow(unsigned int key, int i, int b){  //Hash com chave "key" , valor de iteração i (oriundo de um FOR) e divisor 'b';
+		return (key+i)% b; //Retorna resto da divisão de (k+i) por b (valor de b é a quantia de posições (valor primo de preferência);
+}*/
+
+///// Cálculo do Hashing/ReHashing usando hashing duplo ///////////////////
+
+ unsigned int hashingDuplo(unsigned int key, int i, int b){ //Protótipo de função (útil mas custosa em operações);
+			unsigned int h1, h2;
+
+            h1 = key % b;
+            h2 = ((int) key/b) % b;
+            if(h2 == 0){
+                h2 = 1;
+            }
+
+            return (h1 + (i*h2)) % b; //O fato de realizar uma operação de "%" aqui serve para circular 
+}                              // a lista de forma que não seja necessário usar um IF para circular;
+
+/*
+unsigned int hashPrimario(unsigned int key, int b){
+    return key % b;
 }
 
+unsigned int hashSecundario(unsigned int key, int i, int b){
+    return ((int)key/b) % b;
+}
+*/
+
+
+//Exibe o status do registro em formato de texto
+string statusText(int status){
+	switch(status){
+		case(VAZIO):
+			return "Vazio";
+		case(OCUPADO):
+			return "Ocupado";
+		case(DELETADO):
+			return "Deletado";
+		default:
+			return " ";
+	}
+}
+
+//Insere registro em arquivo
 int inserirRegistro(fstream &arquivo, Registro* reg){
 	// ->Mover o carrier pro inicio
 	arquivo.seekg(0);
 
-	int pos_ini;   //Armazena a posição "original" do hash (posição ideal da chave) 
-	int pos_busca; //Armazena o retorno da função hash(k,i,b);
+	unsigned int pos_ini;   //Armazena a posição "original" do hash (posição ideal da chave) 
+	unsigned int pos_busca; //Armazena o retorno da função hash(k,i,b);
 	Registro* buffer = new Registro(0,0,VAZIO, ""); //buffer para leitura dos registros;
 	
-	pos_ini =  hashing(reg->chave , 0 , TAMANHO); //Armazena a posição "ideal" de hash do registro para
+	pos_ini =  hashingDuplo(reg->chave , 0 , TAMANHO); //Armazena a posição "ideal" de hash do registro para
 												  //analisar se já percorreu a tabela toda e indicar tabela cheia;
 	//Varre de 0 a TAMANHO as posições;
 	for(int i = 0; i <= TAMANHO; i++){
 			
-			pos_busca = hashing(reg->chave, i, TAMANHO);
+			pos_busca = hashingDuplo(reg->chave, i, TAMANHO);
 			//Se a posicao atual for igual a inicial e i > 0, indica que já circulou toda a estrutura e não há espaço disponível
 			if((pos_busca == pos_ini) && (i > 0)){
-				cout << "Tabela cheia." << endl;
+				//cout << "tabela cheia." << endl;
 				return 0;
 			}
 
@@ -66,13 +107,14 @@ int inserirRegistro(fstream &arquivo, Registro* reg){
 
 }
 
+//Remove registro
 int removerRegistro(fstream &arquivo, unsigned int key){
 		Registro *buffer = new Registro(0,0,VAZIO, "");
 		//int pos_busca ; //= hashing(key, 0, TAMANHO);
 
 		for(int i = 0; i < TAMANHO; i++){
 				//pos_busca = hashing(key,i,TAMANHO);
-				arquivo.seekg(HEADER_OFFSET + hashing(key,i,TAMANHO)*sizeof(Registro)); //Busca posição
+				arquivo.seekg(HEADER_OFFSET + hashingDuplo(key,i,TAMANHO)*sizeof(Registro)); //Busca posição
 				
 				arquivo.read((char*)buffer, sizeof(Registro)); //Lê registro na posição 
 				arquivo.sync(); //Sincroniza stream com buffer;
@@ -95,17 +137,17 @@ int removerRegistro(fstream &arquivo, unsigned int key){
 		}
 	return 0; //0 indica que não encontrou a chave;
 }
-
-Registro* buscarRegistro(fstream &arquivo, unsigned int key){
+//Consulta registro
+Registro* consultarRegistro(fstream &arquivo, unsigned int key){
 		Registro *buffer;
 		//int pos_busca ; //= hashing(key, 0, TAMANHO);
 
 		for(int i = 0; i < TAMANHO; i++){
 				//pos_busca = hashing(key,i,TAMANHO);
-				arquivo.seekg(HEADER_OFFSET + hashing(key,i,TAMANHO)*sizeof(Registro));
+				arquivo.seekg(HEADER_OFFSET + hashingDuplo(key,i,TAMANHO)*sizeof(Registro));
 				arquivo.read((char*)buffer, sizeof(Registro));
 				arquivo.sync();
-				if(buffer->chave == key){
+				if( (buffer->chave == key) && (buffer->status == OCUPADO)){ 
 					return buffer;
 				}
 		}
@@ -113,7 +155,7 @@ Registro* buscarRegistro(fstream &arquivo, unsigned int key){
 		return NULL; //Retorna nulo caso não exista registro com esta chave;
 }
 
-
+//Exibe todos os registros
 void exibirRegistros(fstream &arquivo){
 	Registro* buffer = new Registro(0,0,VAZIO," ");
 
@@ -127,23 +169,27 @@ void exibirRegistros(fstream &arquivo){
 	do{
 		arquivo.read((char*)buffer,sizeof(Registro));
 		cout << "//////////////////////////////////////////" << endl;
-		cout << "chave :" << buffer->chave << endl;
+		cout << "chave: " << buffer->chave << endl;
 		cout << "nome: " << buffer->nome << endl;
 		cout << "idade: " << buffer->idade << endl;
+		cout << "status: " << statusText(buffer->status) << endl;
 	}while(arquivo.tellg()!= tamanho);
 
 }
 
+
+
+///////////////// Função principal
 int main(){
 	
-	char opcao = 'm'; //Armazena opcao do menu ('m' é um valor aleatório de inicializacao);
+	
 	
 	
 	fstream arquivo; //Objeto para leitura/escrita;
 
 	arquivo.open("database.txt", ios_base::in | ios_base::out | ios_base::binary ); //Abre o arquivo se já existir ou cria um novo caso contrário
 	if(!arquivo.is_open()){
-		cout << "Arquivo inexistente/com problema. Criando novo" << endl;
+	//	cout << "Arquivo inexistente/com problema. Criando novo" << endl;
 		//Cria-se um arquivo novo, fecha o mesmo e reabre com as flags ideais (in, out e binary);
 		//Esse processo todo foi feito por causa de problemas com "append"
 		arquivo.open("database.txt", ios_base::out);
@@ -157,7 +203,6 @@ int main(){
 	
 	
 
-//	arquivo.seekp(HEADER_OFFSET + 0); //Retorna carrier sempre ao início após HEADER
 
 
 /*
@@ -183,12 +228,12 @@ int main(){
 	*/
 	
 	// "regist" é um registro-auxiliar (servirá de buffer de escrita e remoção de registros);
-	Registro* regist = new Registro(0, 0, VAZIO, " "); 
+	Registro* regist = new Registro(0, 0, VAZIO, ""); 
 	
 		
 	
 		
-	//Se o arquivo for vazio, insere as posições de registros-vazios;
+	//Se o arquivo for vazio (criado agora), insere as posições de registros-vazios;
 	if(tamanho == 0){
 		for(int i = 0 ; i < TAMANHO; i++){
 			arquivo.write((char*)regist, sizeof(Registro)); //Escreve 'TAMANHO' vezes no arquivo vazio (cada posição armazena um único registro neste caso de linear probing);
@@ -207,28 +252,37 @@ int main(){
 *
 */
 
-	cout << "////////////// Sistema Versao inicial /////////" << endl << endl;
+
+//	cout << "////////////// Sistema Versao inicial /////////" << endl << endl;
+
 	unsigned int buffer_chave; //Armazena os valores de chave provisoriamente (usado em consulta);
+	char opcao = 'm'; //Armazena opcao do menu ('m' é um valor aleatório de inicializacao);
+
+
 
 	while(opcao != 'e'){  //Laço de repetição do menu
-		cout << endl << " Digite uma opcao do pdf:" << endl;
-		cin >> opcao;
+	//	cout << endl << " Digite uma opcao do pdf:" << endl;
 		
+    // Lê uma opcao de funcionalidade;
+		cin >> opcao;
+
 		switch(opcao){
 			//////////////////////////////////////////////////////////////////////////////////////
 				case 'i': {
-							cout << "  Opcao i inserir." << endl;
+							//cout << "  Opcao i inserir." << endl;
 							cin >> regist->chave ;
-							cin >> regist->nome;
+							cin.ignore();  //Se não houver esse .ignore() e o seguinte ocorrerá bug e entrada fica em loop;
+							cin.getline(regist->nome,20);
 							cin >> regist->idade;
 
+              
 							//tenta inserir novo registro na tabela
 							inserirRegistro(arquivo, regist);
 							break;	
 						  }
 			//////////////////////////////////////////////////////////////////////////////////////			  
 				case 'r':{
-							cout << "  Opcao r remover." << endl;
+							//cout << "  Opcao r remover." << endl;
 							cin >> regist->chave;
 							if(! removerRegistro(arquivo,regist->chave)){
 								cout << "nao existe registro com chave: " << regist->chave << endl;
@@ -237,10 +291,10 @@ int main(){
 						}
 			//////////////////////////////////////////////////////////////////////////////////////			
 				case 'c':{
-							cout << "  Opcao c consultar. \n";
+							//cout << "  Opcao c consultar. \n";
 							cin >> regist->chave;
 							buffer_chave = regist->chave;					
-							regist = buscarRegistro(arquivo, regist->chave);
+							regist = consultarRegistro(arquivo, regist->chave);
 							if(regist!= NULL){
 								cout << "chave: " << regist->chave << " " << regist->nome << " " << regist->idade << endl;
 							}else{
@@ -254,17 +308,18 @@ int main(){
 				case 'p':{
 					    
 							exibirRegistros(arquivo);
+							cout << "//////////////////////////////////////////" << endl;
 							break;	
 						}
 						
 				case 'e':{
-							cout << "  Opcao e. Finalizando" << endl << endl;
+							//cout << "  Opcao e. Finalizando" << endl << endl;
 							break;	
 						}
 			
 			///////////////////////////////////////////
 			default:{
-						cout << "  Opcao invalida. Digite outra" << endl;
+						//cout << "  Opcao invalida. Digite outra " << opcao <<  endl;
 						break;
 					}
 		 }	
