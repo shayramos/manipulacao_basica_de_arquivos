@@ -210,6 +210,7 @@ int main(){
 
 	unsigned int buffer_chave; //Armazena os valores de chave provisoriamente (usado em consulta);
 	char opcao = 'm'; //Armazena opcao do menu ('m' é um valor aleatório de inicializacao);
+	char entrada[100]; //Armazena o nome no caso de inserção (variável auxiliar p/ filtragem da quantidade de caracteres);
 
 	while(opcao != 'e'){  //Laço de repetição do menu
 		
@@ -223,8 +224,16 @@ int main(){
 							//cout << "  Opcao i inserir." << endl;
 							cin >> regist->chave ;
 							cin.ignore();  //Se não houver esse .ignore() e o seguinte ocorrerá bug e entrada fica em loop;
-							cin.getline(regist->nome,21);
-							cin >> regist->idade;
+							
+							cin.getline(entrada,100); //Foi utilizado uma variável extra para leitura dos 20 caracteres de limite	
+							if(cin.gcount() <= 21){   // pois estava ocorrendo um loop infinito.
+								strncpy(regist->nome, entrada, cin.gcount() -1);  
+							}else{												  
+								strncpy(regist->nome,entrada,20);	  //Caso o nome tenha mais de 20 caracteres, pega
+							}										//somente os 20 primeiros
+
+							cin >> regist->idade;    //Lê a idade
+												
 							        //tenta inserir novo registro na tabela
 							inserirRegistro(arquivo, regist);
 							break;	
