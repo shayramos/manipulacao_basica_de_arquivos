@@ -62,6 +62,7 @@ int inserirRegistro(fstream &arquivo, Registro* reg){
 			if(buffer->status == OCUPADO){
 				if(buffer->chave == reg->chave){
 					cout << "registro com chave existente" << endl;
+					delete buffer;
 					return 1;
 				}else{ //Caso o registro só esteja ocupado e não tenha chave igual, continua FOR
 					continue;
@@ -73,9 +74,11 @@ int inserirRegistro(fstream &arquivo, Registro* reg){
 				reg->status = OCUPADO;  //Atualiza status (ele não é atualizado antes por causa da possibilidade de tabela cheia e já-existência de chave);
 				arquivo.write((char*)reg, sizeof(Registro)); 
 				arquivo.flush();
+				delete buffer;
 				return 2;		
 			}		
 	}
+	delete buffer;
     return 0; //Caso a tabela esteja cheia
 }
 
@@ -102,15 +105,17 @@ int removerRegistro(fstream &arquivo, unsigned int key){
 					buffer->status = DELETADO;
 					arquivo.write((char*)buffer, sizeof(Registro));
 					arquivo.flush();
+					delete buffer;
 					return 1; //1 indica que apagou com sucesso;
 				}
 		}
+	delete buffer;
 	return 0; //0 indica que não encontrou a chave;
 }
 
 //Consulta registro
 int consultarRegistro(fstream &arquivo, unsigned int key){
-		Registro *buffer;
+		Registro *buffer = new Registro(0,0,VAZIO,"");
 
 		for(int i = 0; i < TAMANHO; i++){
 				arquivo.seekg(HEADER_OFFSET + hashingDuplo(key,i,TAMANHO)*sizeof(Registro));
@@ -118,10 +123,12 @@ int consultarRegistro(fstream &arquivo, unsigned int key){
 				arquivo.sync();
 				if( (buffer->chave == key) && (buffer->status == OCUPADO)){ 
 					cout << "chave: " << buffer->chave << " " << buffer->nome << " " << buffer->idade << endl;
+					delete buffer;
 					return 1; //Encontrou a chave;
 				}
 		}
 		cout << "nao ha registro com a chave: " << key << endl;
+		delete buffer;
 		return 0; //Não encontrou a chave;
 }
 
@@ -144,7 +151,7 @@ void exibirRegistros(fstream &arquivo){
 		cout << "idade: " << buffer->idade << endl;
 		cout << "status: " << statusText(buffer->status) << endl;
 	}while(arquivo.tellg()!= tamanho);
-
+	delete buffer;
 }
 
 
