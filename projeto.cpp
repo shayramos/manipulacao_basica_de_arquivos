@@ -223,7 +223,7 @@ int main(){
 							//cout << "  Opcao i inserir." << endl;
 							cin >> regist->chave ;
 							cin.ignore();  //Se não houver esse .ignore() e o seguinte ocorrerá bug e entrada fica em loop;
-							cin.getline(regist->nome,20);
+							cin.getline(regist->nome,21);
 							cin >> regist->idade;
 							        //tenta inserir novo registro na tabela
 							inserirRegistro(arquivo, regist);
@@ -266,6 +266,7 @@ int main(){
 
 	// Fecha o arquivo;
 	arquivo.close();
+	delete regist;
 	return 0;
 }
 
