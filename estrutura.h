@@ -14,7 +14,7 @@
 
 using namespace std;
 
-//Utiliza-se Linear Probing (Sondagem Linear) nesse exemplo
+//Utiliza-se Double Hashing neste exemplo
 
 class Registro{
     public:
