@@ -109,7 +109,7 @@ int removerRegistro(fstream &arquivo, unsigned int key){
 }
 
 //Consulta registro
-Registro* consultarRegistro(fstream &arquivo, unsigned int key){
+int consultarRegistro(fstream &arquivo, unsigned int key){
 		Registro *buffer;
 
 		for(int i = 0; i < TAMANHO; i++){
@@ -117,11 +117,12 @@ Registro* consultarRegistro(fstream &arquivo, unsigned int key){
 				arquivo.read((char*)buffer, sizeof(Registro));
 				arquivo.sync();
 				if( (buffer->chave == key) && (buffer->status == OCUPADO)){ 
-					return buffer;
+					cout << "chave: " << buffer->chave << " " << buffer->nome << " " << buffer->idade << endl;
+					return 1; //Encontrou a chave;
 				}
 		}
-
-		return NULL; //Retorna nulo caso não exista registro com esta chave;
+		cout << "nao ha registro com a chave: " << key << endl;
+		return 0; //Não encontrou a chave;
 }
 
 //Exibe todos os registros
@@ -235,12 +236,7 @@ int main(){
 							//cout << "  Opcao c consultar. \n";
 							cin >> regist->chave;
 							buffer_chave = regist->chave;					
-							regist = consultarRegistro(arquivo, regist->chave);
-							if(regist!= NULL){
-								cout << "chave: " << regist->chave << " " << regist->nome << " " << regist->idade << endl;
-							}else{
-								cout << "nao ha registro com chave: " << buffer_chave << endl; 
-							}	
+							consultarRegistro(arquivo, regist->chave);
 							break;	
 						}
 			//////////////////////////////////////////////////////////////////////////////////////			
