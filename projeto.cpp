@@ -74,8 +74,11 @@ int inserirRegistro(fstream &arquivo, Registro* reg){
 				reg->status = OCUPADO;  //Atualiza status (ele não é atualizado antes por causa da possibilidade de tabela cheia e já-existência de chave);
 				arquivo.write((char*)reg, sizeof(Registro)); 
 				arquivo.flush();
-				delete buffer;
-				return 2;		
+				char string_clean[20] = "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"; //Serve para apagar bloco de bytes (limpar lixo da memória)
+				strncpy(reg->nome,string_clean,20);
+
+				delete buffer;  //Apaga instância de buffer (evitar memory leak);
+				return 2;		//Código de operação com sucesso;
 			}		
 	}
 	delete buffer;
