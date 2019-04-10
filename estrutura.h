@@ -1,6 +1,5 @@
-#define TAMANHO 3  //Tamanho da tabela de registros
+#define TAMANHO 11  //Tamanho da tabela de registros (DEVE SER UM NÚMERO PRIMO !)
 #define HEADER_OFFSET  0 //Tamanho em bytes do header de arquivo (caso seja utilizado);
-
 
 ///////DEFINES para o status do registro;
 #define VAZIO 0
@@ -10,12 +9,12 @@
 
 #include <iostream>
 #include <fstream>
-
-#include <string>
 #include <cstring>
+#include <string>
+
 using namespace std;
 
-//Utiliza-se Linear Probing (Sondagem Linear) nesse exemplo
+//Utiliza-se Double Hashing neste exemplo
 
 class Registro{
     public:
@@ -25,8 +24,7 @@ class Registro{
         int status;  // 0 = livre, 1 = ocupado, 2 = deletado porém já utilizado anteriormente
         char nome[20];
         
-
+        //Construtor 
 		Registro(unsigned  int chave, unsigned  int idade,  int status, const char* nome);
-        
-        
+         
 };
