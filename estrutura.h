@@ -19,12 +19,14 @@ using namespace std;
 class Registro{
     public:
         
-        unsigned  int chave; 
-        unsigned  int idade; 
+        // unsigned  int chave;
+        char chave[20];
+        char conteudo[50];
+        // unsigned  int idade; 
         int status;  // 0 = livre, 1 = ocupado, 2 = deletado porém já utilizado anteriormente
-        char nome[20];
+        // char nome[20];
         
         //Construtor 
-		Registro(unsigned  int chave, unsigned  int idade,  int status, const char* nome);
+		Registro(const char* chave, const char* conteudo, int status);
          
 };

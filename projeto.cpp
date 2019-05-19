@@ -38,14 +38,14 @@ string statusText(int status){
 	}
 }
 
-//Insere registro em arquivo
 
+//Insere registro em arquivo
 int inserirRegistro(fstream &arquivo, Registro* reg){
 	// ->Mover o carrier pro inicio
 	arquivo.seekg(0);
 
 	unsigned int pos_busca; //Armazena o retorno da função hash(k,i,b);
-	Registro* buffer = new Registro(0,0,VAZIO, ""); //buffer para leitura dos registros;
+	Registro* buffer = new Registro("", "", VAZIO); //buffer para leitura dos registros;
 	
 	//Varre de 0 a TAMANHO as posições;
 	for(int i = 0; i < TAMANHO; i++){
@@ -150,8 +150,9 @@ void exibirRegistros(fstream &arquivo){
 		arquivo.read((char*)buffer,sizeof(Registro));
 		cout << "/////////////////// Registro " << (arquivo.tellg()/sizeof(Registro)) << "///////////////////////" << endl;
 		cout << "chave: " << buffer->chave << endl;
-		cout << "nome: " << buffer->nome << endl;
-		cout << "idade: " << buffer->idade << endl;
+		cout << "conteudo: " << buffer->conteudo << endl;
+		// cout << "nome: " << buffer->nome << endl;
+		// cout << "idade: " << buffer->idade << endl;
 		cout << "status: " << statusText(buffer->status) << endl;
 	}while(arquivo.tellg()!= tamanho);
 	delete buffer;
@@ -194,7 +195,7 @@ int main(){
 	*/
 	
 	// "regist" é um registro-auxiliar (servirá de buffer de escrita e remoção de registros);
-	Registro* regist = new Registro(0, 0, VAZIO, ""); 
+	Registro* regist = new Registro("", "", VAZIO); 
 	
 
 	//Se o arquivo for vazio (criado agora), insere as posições de registros-vazios;
