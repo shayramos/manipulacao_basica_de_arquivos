@@ -164,20 +164,6 @@ void exibirRegistros(fstream &arquivo){
 ///////////////// Função principal
 int main(int argc, char* argv[]){
 	
-	if (argc != 2){
-    	cout<<"usage: "<< argv[0] <<" <filename>\n";
-		return 0;
-	}
-  	 
-    // We assume argv[1] is a filename to open
-    ifstream file_in(argv[1]); //Objeto para leitura;
-	
-    // Checkar se o arquivo abriu com sucesso
-    if (!file_in.is_open()){
-      cout << "Could not open file\n";
-	  return 0;
-  	}
-
 	fstream arquivo; //Objeto para leitura/escrita;
 
 	arquivo.open("database.bin", ios_base::in | ios_base::out | ios_base::binary ); //Abre o arquivo se já existir ou cria um novo caso contrário
@@ -213,11 +199,11 @@ int main(int argc, char* argv[]){
 	
 
 	//Se o arquivo for vazio (criado agora), insere as posições de registros-vazios;
-	// if(tamanho == 0){
-	// 	for(int i = 0 ; i < TAMANHO; i++){
-	// 		arquivo.write((char*)regist, sizeof(Registro)); //Escreve 'TAMANHO' vezes no arquivo vazio (cada posição armazena um único registro neste caso de linear probing);
-	// 	}
-	// }
+	if(tamanho == 0){
+		for(int i = 0 ; i < TAMANHO; i++){
+			arquivo.write((char*)regist, sizeof(Registro)); //Escreve 'TAMANHO' vezes no arquivo vazio (cada posição armazena um único registro neste caso de linear probing);
+		}
+	}
 	
 /*
 *
@@ -226,111 +212,126 @@ int main(int argc, char* argv[]){
 		Menu do sistema (não tem exibição de texto)
 */
 
-	std::string linha;
-	while (std::getline(file_in, linha)){
+	if (argc != 2){
+	//CASO A ENTRADA NÃO SEJA ATRAVÉS DE ARQUIVO
+    	// cout<<"usage: "<< argv[0] <<" <filename>\n";
+			
+		unsigned int buffer_chave; //Armazena os valores de chave provisoriamente (usado em consulta);
+		char opcao = 'm'; //Armazena opcao do menu ('m' é um valor aleatório de inicializacao);
+		char entrada[100]; //Armazena o nome no caso de inserção (variável auxiliar p/ filtragem da quantidade de caracteres);
 		
-		//INSERIR
-		//////////////////////////////////////////////////////////////////////////////////////
-		if(linha!="e" && linha!="c" && linha!="r"){
-			regist->chave = linha;
-			std::getline(file_in, linha);
-			regist->conteudo = linha;
-			//inserirRegistro(arquivo, regist);
-			cout << linha << endl;
-		}else{
-		//FINALIZAR
-		//////////////////////////////////////////////////////////////////////////////////////
-			if(linha=="e"){
-				file_in.close();
-				return 0;
-			}else{
-			//CONSULTAR
-			//////////////////////////////////////////////////////////////////////////////////////		
-				if(linha=="c"){
-					std::getline(file_in, linha);
-					regist->chave = linha;
-					//exibirRegistros(arquivo, regist->chave);
-					cout << linha << endl;
-				}else{
-				//REMOVER
+		while(opcao != 'e'){  //Laço de repetição do menu		
+		// Lê uma opcao de funcionalidade;
+			cin >> opcao;
+			switch(opcao){
 				//////////////////////////////////////////////////////////////////////////////////////
-					if(linha=="r"){
+					case 'i': {
+								//cout << "  Opcao i inserir." << endl;
+								cin >> regist->chave ;
+								cin.ignore();  //Se não houver esse .ignore() e o seguinte ocorrerá bug e entrada fica em loop;
+								
+								cin.getline(entrada,100); //Foi utilizado uma variável extra para leitura dos 20 caracteres de limite	
+								if(cin.gcount() <= 21){   // pois estava ocorrendo um loop infinito.
+									// strncpy(regist->nome, entrada, cin.gcount() -1);  
+								}else{												  
+									// strncpy(regist->nome,entrada,20);	  //Caso o nome tenha mais de 20 caracteres, pega
+								}										//somente os 20 primeiros
+
+								// cin >> regist->idade;    //Lê a idade
+													
+										//tenta inserir novo registro na tabela
+								inserirRegistro(arquivo, regist);
+								break;	
+							}
+				//////////////////////////////////////////////////////////////////////////////////////			  
+					case 'r':{
+								//cout << "  Opcao r remover." << endl;
+								cin >> regist->chave;
+								// if(! removerRegistro(arquivo,regist->chave)){
+								// 	cout << "nao existe registro com chave: " << regist->chave << endl;
+								// }
+								break;	
+							}
+				//////////////////////////////////////////////////////////////////////////////////////			
+					case 'c':{
+								//cout << "  Opcao c consultar. \n";
+								cin >> regist->chave;
+								// buffer_chave = regist->chave;					
+								// consultarRegistro(arquivo, regist->chave);
+								break;	
+							}
+				//////////////////////////////////////////////////////////////////////////////////////			
+					case 'p':{  //Opcao de print dos registros;
+								exibirRegistros(arquivo);
+								cout << "//////////////////////////////////////////" << endl;
+								break;	
+							}
+							
+					case 'e':{ //Opcao de fim de programa;
+								break;	
+							}
+				
+				///////////////////////////////////////////
+				default:{ //Qualquer outra opcao serah considerada como invalida;
+							break;
+						}
+			}	
+		}
+	}else{
+	//CASO A ENTRADA SEJA ATRAVÉS DE ARQUIVO
+		
+		// We assume argv[1] is a filename to open
+		ifstream file_in(argv[1]); //Objeto para leitura;
+		
+		// Checkar se o arquivo abriu com sucesso
+		if (!file_in.is_open()){
+		cout << "Could not open file\n";
+		return 0;
+		}
+		std::string linha;
+		while (std::getline(file_in, linha)){
+			//INSERIR
+			//////////////////////////////////////////////////////////////////////////////////////
+			if(linha=="i"){
+				std::getline(file_in, linha);
+				strcpy(regist->chave, linha.c_str());
+				std::getline(file_in, linha);
+				strcpy(regist->conteudo, linha.c_str());
+				//inserirRegistro(arquivo, regist);
+				cout << linha << endl;
+			}else{
+			//FINALIZAR
+			//////////////////////////////////////////////////////////////////////////////////////
+				if(linha=="e"){
+					file_in.close();
+					return 0;
+				}else{
+				//CONSULTAR
+				//////////////////////////////////////////////////////////////////////////////////////		
+					if(linha=="c"){
 						std::getline(file_in, linha);
-						regist->chave = linha;
-						// if(!removerRegistro(arquivo, regist->chave)){
-						// 	cout << "nao existe registro com chave: " << regist->chave << endl;
-						// }
+						strcpy(regist->chave, linha.c_str());
+						//exibirRegistros(arquivo, regist->chave);
 						cout << linha << endl;
+					}else{
+					//REMOVER
+					//////////////////////////////////////////////////////////////////////////////////////
+						if(linha=="r"){
+							std::getline(file_in, linha);
+							strcpy(regist->chave, linha.c_str());
+							// if(!removerRegistro(arquivo, regist->chave)){
+							// 	cout << "nao existe registro com chave: " << regist->chave << endl;
+							// }
+							cout << linha << endl;
+						}
 					}
 				}
 			}
 		}
+		file_in.close();
 	}
 
-	// unsigned int buffer_chave; //Armazena os valores de chave provisoriamente (usado em consulta);
-	// char opcao = 'm'; //Armazena opcao do menu ('m' é um valor aleatório de inicializacao);
-	// char entrada[100]; //Armazena o nome no caso de inserção (variável auxiliar p/ filtragem da quantidade de caracteres);
-	
-	// while(opcao != 'e'){  //Laço de repetição do menu		
-    // // Lê uma opcao de funcionalidade;
-	// 	cin >> opcao;
-	// 	switch(opcao){
-	// 		//////////////////////////////////////////////////////////////////////////////////////
-	// 			case 'i': {
-	// 						//cout << "  Opcao i inserir." << endl;
-	// 						cin >> regist->chave ;
-	// 						cin.ignore();  //Se não houver esse .ignore() e o seguinte ocorrerá bug e entrada fica em loop;
-							
-	// 						cin.getline(entrada,100); //Foi utilizado uma variável extra para leitura dos 20 caracteres de limite	
-	// 						if(cin.gcount() <= 21){   // pois estava ocorrendo um loop infinito.
-	// 							strncpy(regist->nome, entrada, cin.gcount() -1);  
-	// 						}else{												  
-	// 							strncpy(regist->nome,entrada,20);	  //Caso o nome tenha mais de 20 caracteres, pega
-	// 						}										//somente os 20 primeiros
-
-	// 						cin >> regist->idade;    //Lê a idade
-												
-	// 						        //tenta inserir novo registro na tabela
-	// 						inserirRegistro(arquivo, regist);
-	// 						break;	
-	// 					  }
-	// 		//////////////////////////////////////////////////////////////////////////////////////			  
-	// 			case 'r':{
-	// 						//cout << "  Opcao r remover." << endl;
-	// 						cin >> regist->chave;
-	// 						if(! removerRegistro(arquivo,regist->chave)){
-	// 							cout << "nao existe registro com chave: " << regist->chave << endl;
-	// 						}
-	// 						break;	
-	// 					}
-	// 		//////////////////////////////////////////////////////////////////////////////////////			
-	// 			case 'c':{
-	// 						//cout << "  Opcao c consultar. \n";
-	// 						cin >> regist->chave;
-	// 						buffer_chave = regist->chave;					
-	// 						consultarRegistro(arquivo, regist->chave);
-	// 						break;	
-	// 					}
-	// 		//////////////////////////////////////////////////////////////////////////////////////			
-	// 			case 'p':{  //Opcao de print dos registros;
-	// 						exibirRegistros(arquivo);
-	// 						cout << "//////////////////////////////////////////" << endl;
-	// 						break;	
-	// 					}
-						
-	// 			case 'e':{ //Opcao de fim de programa;
-	// 						break;	
-	// 					}
-			
-	// 		///////////////////////////////////////////
-	// 		default:{ //Qualquer outra opcao serah considerada como invalida;
-	// 					break;
-	// 				}
-	// 	 }	
-	//  }
-
 	// Fecha o arquivo;
-	file_in.close();
 	arquivo.close();
 	delete regist;
 	return 0;
