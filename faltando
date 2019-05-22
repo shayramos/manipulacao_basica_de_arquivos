@@ -13,6 +13,8 @@ falta:
 -ver debugs
 -se for usar encadeamento, ver forma alternativa de remoção sem tanto swap (pode ser usando um 3o status (DELETADO) ou usando paginas (blocos de registros) ao inves
 de cada registro (similar a arvore-B)
+-bug na remoção (ponteiro de anterior n atualiza)
+-bug ao inserir dados via arquivo (./projeto < input.txt) no stdin
 
 
 67280421310721
