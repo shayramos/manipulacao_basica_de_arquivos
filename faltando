@@ -1,0 +1,18 @@
+falta:
+-leitura de parâmetro inicial (dados iniciais em arquivo .txt)
+-verificar se o encadeamento funciona ok
+-colocar as verificações em cada posição da linha do endereçamento aberto
+-formatação de saída
+-desempenho a ser verificado
+-limitar chaves com espaco em branco
+-remover todos couts desnecessários
+-ver memory leaks
+-ver a questão de chaves com espaco em branco
+-verificar o preenchimento de string na limpeza da inserção
+-verificar a remoção de uma dada chave (evitar que chaves diferentes com mesmo hash sejam excluídas)
+-ver debugs
+
+67280421310721
+9,223,372,036,854,775,807 long long
+2147483647
+

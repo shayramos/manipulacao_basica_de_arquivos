@@ -1,32 +1,28 @@
-#define TAMANHO 11  //Tamanho da tabela de registros (DEVE SER UM NÚMERO PRIMO !)
+#define TAMANHO 7  //Tamanho da tabela de registros (DEVE SER UM NÚMERO PRIMO !)
+                   //Valor recomendado: 2147483647 (pode ser 67.280.421.310.721 -valor máximo também)
 #define HEADER_OFFSET  0 //Tamanho em bytes do header de arquivo (caso seja utilizado);
 
-///////DEFINES para o status do registro;
 #define VAZIO 0
 #define OCUPADO 1
-#define DELETADO 2
-
+//#define DELETADO 2
 
 #include <iostream>
+#include <cstdio>
 #include <fstream>
 #include <cstring>
 #include <string>
 
 using namespace std;
 
-//Utiliza-se Double Hashing neste exemplo
-
 class Registro{
     public:
         
-        // unsigned  int chave;
         char chave[20];
-        char conteudo[50];
-        // unsigned  int idade; 
-        int status;  // 0 = livre, 1 = ocupado, 2 = deletado porém já utilizado anteriormente
-        // char nome[20];
-        
+        char valor[50];
+        int status;
+        long long int anterior,proximo; //Apontador para próximo registro que tenha mesmo hash (-1 indica ausência de valor seguinte);
+
         //Construtor 
-		Registro(const char* chave, const char* conteudo, int status);
+	    Registro(const char* chave, const char* valor, long long int anterior, long long int proximo,  int status);
          
 };
