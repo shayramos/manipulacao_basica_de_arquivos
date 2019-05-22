@@ -10,18 +10,31 @@
 
 ///// Cálculo do Hashing/ReHashing usando hashing duplo ///////////////////
 
- unsigned int hashingDuplo(unsigned int key, int i, int b){ //Protótipo de função (útil mas custosa em operações);
-			unsigned int h1, h2, h2_aux; //hash1, hash2 e hash2_auxiliar;
+//Retorna a soma de todos os caracteres de uma chave baseado na tabela ascii
+//???definir o tamanho da base para fazer o calculo final baseado nisso 
+unsigned int processAlphabeticKey(const char key[]){
+	int ascii = 0;
 
-            h1 = key % b;
-            h2_aux = ((int) key/b);
-            if(h2_aux == 0){
-                h2 = 1;
-            }else{
-				h2 = h2_aux % b;
-			}
+	for(int i=0; i<strlen(key); i++){
+		// cout << key[i] << endl;
+		ascii += (int)key[i];
+	}
+	// cout << ascii << endl;
+	return ascii;
+}
 
-            return (h1 + (i*h2)) % b; //O fato de realizar uma operação de "%" aqui serve para circular 
+unsigned int hashingDuplo(unsigned int key, int i, int b){ //Protótipo de função (útil mas custosa em operações);
+	unsigned int h1, h2, h2_aux; //hash1, hash2 e hash2_auxiliar;
+
+	h1 = key % b;
+	h2_aux = ((int) key/b);
+	if(h2_aux == 0){
+		h2 = 1;
+	}else{
+		h2 = h2_aux % b;
+	}
+
+	return (h1 + (i*h2)) % b; //O fato de realizar uma operação de "%" aqui serve para circular 
 }                                  // a lista de forma que não seja necessário usar um IF para circular a mesma;
 
 //Exibe o status do registro em formato de texto
@@ -50,37 +63,37 @@ int inserirRegistro(fstream &arquivo, Registro* reg){
 	//Varre de 0 a TAMANHO as posições;
 	for(int i = 0; i < TAMANHO; i++){
 			
-			// pos_busca = hashingDuplo(reg->chave, i, TAMANHO);
-			pos_busca=0;
-			////Caso haja espaço ou não percorreu a tabela toda;
-			arquivo.seekg(HEADER_OFFSET + (pos_busca * sizeof(Registro))); //Desloca-se para a posição do registro resultando do hash(k,i,b);
-			
-			arquivo.read((char*)buffer,sizeof(Registro));  //Realiza a leitura na posição
-			arquivo.sync();
+		// pos_busca = hashingDuplo(reg->chave, i, TAMANHO);
+		pos_busca=0;
+		////Caso haja espaço ou não percorreu a tabela toda;
+		arquivo.seekg(HEADER_OFFSET + (pos_busca * sizeof(Registro))); //Desloca-se para a posição do registro resultando do hash(k,i,b);
+		
+		arquivo.read((char*)buffer,sizeof(Registro));  //Realiza a leitura na posição
+		arquivo.sync();
 
 
-			if(buffer->status == OCUPADO){
-				if(buffer->chave == reg->chave){
-					cout << "registro com chave existente" << endl;
-					delete buffer;
-					return 1;
-				}else{ //Caso o registro só esteja ocupado e não tenha chave igual, continua FOR
-					continue;
-				}
+		if(buffer->status == OCUPADO){
+			if(buffer->chave == reg->chave){
+				cout << "registro com chave existente" << endl;
+				delete buffer;
+				return 1;
+			}else{ //Caso o registro só esteja ocupado e não tenha chave igual, continua FOR
+				continue;
+			}
 
 
-			}else{ //se status = LIVRE ou DELETADO então pode gravar o registro;
-				arquivo.seekp(HEADER_OFFSET + pos_busca*sizeof(Registro));
-				reg->status = OCUPADO;  //Atualiza status (ele não é atualizado antes por causa da possibilidade de tabela cheia e já-existência de chave);
-				arquivo.write((char*)reg, sizeof(Registro)); 
-				arquivo.flush();
-				char string_clean[20] = "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"; //Serve para apagar bloco de bytes (limpar lixo da memória)
-				// strncpy(reg->nome,string_clean,20);
-				strncpy(reg->conteudo,string_clean,20);
+		}else{ //se status = LIVRE ou DELETADO então pode gravar o registro;
+			arquivo.seekp(HEADER_OFFSET + pos_busca*sizeof(Registro));
+			reg->status = OCUPADO;  //Atualiza status (ele não é atualizado antes por causa da possibilidade de tabela cheia e já-existência de chave);
+			arquivo.write((char*)reg, sizeof(Registro)); 
+			arquivo.flush();
+			char string_clean[20] = "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"; //Serve para apagar bloco de bytes (limpar lixo da memória)
+			// strncpy(reg->nome,string_clean,20);
+			strncpy(reg->conteudo,string_clean,20);
 
-				delete buffer;  //Apaga instância de buffer (evitar memory leak);
-				return 2;		//Código de operação com sucesso;
-			}		
+			delete buffer;  //Apaga instância de buffer (evitar memory leak);
+			return 2;		//Código de operação com sucesso;
+		}		
 	}
 	delete buffer;
     return 0; //Caso a tabela esteja cheia
@@ -193,7 +206,7 @@ int main(int argc, char* argv[]){
 	*
 	*
 	*/
-	
+
 	// "regist" é um registro-auxiliar (servirá de buffer de escrita e remoção de registros);
 	Registro* regist = new Registro("", "", VAZIO); 
 	
@@ -204,7 +217,7 @@ int main(int argc, char* argv[]){
 			arquivo.write((char*)regist, sizeof(Registro)); //Escreve 'TAMANHO' vezes no arquivo vazio (cada posição armazena um único registro neste caso de linear probing);
 		}
 	}
-	
+
 /*
 *
 *
@@ -235,11 +248,11 @@ int main(int argc, char* argv[]){
 									// strncpy(regist->nome, entrada, cin.gcount() -1);  
 								}else{												  
 									// strncpy(regist->nome,entrada,20);	  //Caso o nome tenha mais de 20 caracteres, pega
-								}										//somente os 20 primeiros
+								}	//somente os 20 primeiros
 
 								// cin >> regist->idade;    //Lê a idade
 													
-										//tenta inserir novo registro na tabela
+								//tenta inserir novo registro na tabela
 								inserirRegistro(arquivo, regist);
 								break;	
 							}
@@ -271,7 +284,7 @@ int main(int argc, char* argv[]){
 								break;	
 							}
 				
-				///////////////////////////////////////////
+				//////////////////////////////////////////////////////////////////////////////////////
 				default:{ //Qualquer outra opcao serah considerada como invalida;
 							break;
 						}
@@ -285,48 +298,25 @@ int main(int argc, char* argv[]){
 		
 		// Checkar se o arquivo abriu com sucesso
 		if (!file_in.is_open()){
-		cout << "Could not open file\n";
-		return 0;
+			cout << "Could not open file\n";
+			return 0;
 		}
-		std::string linha;
+
+		std::string linha, token;
+		vector<string> srt;
 		while (std::getline(file_in, linha)){
-			//INSERIR
+			std::stringstream ss(linha);
+			//INSERIR REGISTROS PELO ARQUIVO DE ESTADO INICIAL
 			//////////////////////////////////////////////////////////////////////////////////////
-			if(linha=="i"){
-				std::getline(file_in, linha);
-				strcpy(regist->chave, linha.c_str());
-				std::getline(file_in, linha);
-				strcpy(regist->conteudo, linha.c_str());
-				//inserirRegistro(arquivo, regist);
-				cout << linha << endl;
-			}else{
-			//FINALIZAR
-			//////////////////////////////////////////////////////////////////////////////////////
-				if(linha=="e"){
-					file_in.close();
-					return 0;
-				}else{
-				//CONSULTAR
-				//////////////////////////////////////////////////////////////////////////////////////		
-					if(linha=="c"){
-						std::getline(file_in, linha);
-						strcpy(regist->chave, linha.c_str());
-						//exibirRegistros(arquivo, regist->chave);
-						cout << linha << endl;
-					}else{
-					//REMOVER
-					//////////////////////////////////////////////////////////////////////////////////////
-						if(linha=="r"){
-							std::getline(file_in, linha);
-							strcpy(regist->chave, linha.c_str());
-							// if(!removerRegistro(arquivo, regist->chave)){
-							// 	cout << "nao existe registro com chave: " << regist->chave << endl;
-							// }
-							cout << linha << endl;
-						}
-					}
-				}
+			while(getline(ss,token,',')){
+				srt.push_back(token);
 			}
+			strcpy(regist->chave, srt[0].c_str());
+			//chave e tamanho associado
+			//cout << regist->chave << " : " << processAlphabeticKey(regist->chave) << endl;
+			strcpy(regist->conteudo, srt[1].c_str());
+			srt.clear();
+			// inserirRegistro(arquivo, regist);
 		}
 		file_in.close();
 	}

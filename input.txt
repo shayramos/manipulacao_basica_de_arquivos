@@ -1,8 +1,3 @@
-i
-valorDaChave
-conteudoDaChave
-r
-valorDaChave
-e
-c
-valorDaChave
+chave1,conteudoDaChave1
+chave2,conteudoDaChave2
+chave3,conteudoDaChave3
