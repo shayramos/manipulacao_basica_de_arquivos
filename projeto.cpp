@@ -202,8 +202,14 @@ int inserirRegistro(fstream &arquivo, Registro *reg){
 void removerRegistro(fstream &arquivo, const char* chave){
 		Registro *buffer = new Registro("", "", -1, -1, VAZIO);
 
+		//Variáveis locais auxiliares para os índices de registros, bem como valores calculados de hash;
 		unsigned long long int hash = HashString(chave);
-		unsigned long long int hash_swap;
+		unsigned long long int hash_swap, index, index_swap;
+
+		//Será utilizado para "limpar" strings do registro
+		string clean_chave(20,'\x00');
+		string clean_valor(50,'\x00');
+
 		do{
 			arquivo.seekg(HEADER_OFFSET + hash*sizeof(Registro));
 			arquivo.read((char*)buffer, sizeof(Registro));
@@ -212,20 +218,63 @@ void removerRegistro(fstream &arquivo, const char* chave){
 			hash = buffer->proximo;	
 			if(!strcmp(buffer->chave, chave)){ //Se a chave na posição for igual a que estamos procurando
 				
+				  //Verificar se o registro a ser apagado tem valor "proximo" != -1:
+						//I) caso tenha, desloca esse proximo para a posição-raiz e apaga a posicao antiga do "proximo"
+						//II) caso nao tenha, basta apagar direto
+					
+					index = hash*sizeof(Registro);
+					index_swap = hash_swap * sizeof(Registro);
 
-				string clean_chave (20,'\x00');
-				string clean_valor(50,'\x00');
-				strcpy(buffer->chave,clean_chave.c_str());
-				strcpy(buffer->valor,clean_valor.c_str());
-			
-				buffer->anterior = -1;
-				buffer->proximo = -1;
-				buffer->status = VAZIO;
+					if(buffer->proximo != -1){ //Se buffer->anterior != -1 (existe ao menos 1 registro em seguida)
+						
+						//Aqui será realizado o swap de registros e apagado o desejado;
+						Registro* buff_extra = new Registro("","",-1,-1,VAZIO);
+						arquivo.seekg(HEADER_OFFSET + index); //Lê o "proximo" registro
+						arquivo.read((char*)buff_extra, sizeof(Registro)); //e armazena em buff_extra;
+						arquivo.sync();
 
-				//Apagando registro em arquivo;
-				arquivo.seekp(HEADER_OFFSET + hash_swap*sizeof(Registro));
-				arquivo.write((char*)buffer, sizeof(Registro));
-				arquivo.flush();
+						arquivo.seekp(HEADER_OFFSET + index_swap); //Vai para a posição original para inserir o "proximo"
+						arquivo.write((char*)buff_extra, sizeof(Registro)); //registro nela (swap)
+						arquivo.flush();
+
+						//Preenchendo com 0's os bytes de chave e valor;
+						strcpy(buffer->chave,clean_chave.c_str());
+						strcpy(buffer->valor,clean_valor.c_str());
+						
+						//Valores-padrão de um registro vazio;
+						buffer->anterior = -1;
+						buffer->proximo = -1;
+						buffer->status = VAZIO;
+						
+						
+						//Apagando o registro antigo de "proximo" (finalizando swap)
+						arquivo.seekp(HEADER_OFFSET + index); //Vai para a posição "proximo" para finalizar o swap
+						arquivo.write((char*)buffer, sizeof(Registro));
+						arquivo.flush();
+
+						//Atualiza hash e elimina buffer extra;
+						hash = hash_swap;
+						delete buff_extra;
+					
+					}else{
+						//Caso o valor de "proximo" == -1 (registro no fim da lista encadeada);
+							//Preenchendo com 0's os bytes de chave e valor;
+						strcpy(buffer->chave,clean_chave.c_str());
+						strcpy(buffer->valor,clean_valor.c_str());
+						
+						//Valores-padrão de um registro vazio;
+						buffer->anterior = -1;
+						buffer->proximo = -1;
+						buffer->status = VAZIO;
+						
+						
+						//Apagando o registro antigo de "proximo" (finalizando swap)
+						arquivo.seekp(HEADER_OFFSET + index); //Vai para a posição "proximo" para finalizar o swap
+						arquivo.write((char*)buffer, sizeof(Registro));
+						arquivo.flush();
+
+					}
+
 			}
 			
 		}while(hash != -1);
@@ -259,7 +308,7 @@ void consultarRegistro(fstream &arquivo, const char* chave){
 
   //APAGUE ESTE MÉTODO (É SOMENTE PARA DEBUG!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!);
 //Exibe todos os registros
-void exibirRegistros(fstream &arquivo){
+/*void exibirRegistros(fstream &arquivo){
 	Registro* buffer = new Registro("","",-1,-1,VAZIO);
 
 
@@ -271,7 +320,7 @@ void exibirRegistros(fstream &arquivo){
 
 	do{
 		arquivo.read((char*)buffer,sizeof(Registro));
-		cout << "/////////////////// Registro " << (arquivo.tellg()/sizeof(Registro)) << "///////////////////////" << endl;
+		cout << "/////////////////// Registro " << (arquivo.tellg()/sizeof(Registro)) -1  << "///////////////////////" << endl;
 		cout << "chave: " << buffer->chave << endl;
 		cout << "valor: " << buffer->valor << endl;
 		cout << "anterior: " << buffer->anterior << endl;
@@ -279,7 +328,7 @@ void exibirRegistros(fstream &arquivo){
 		cout << "status: " << buffer->status << endl;
 	}while(arquivo.tellg()!= tamanho);
 	delete buffer;
-}
+}*/
 
 
 
@@ -349,11 +398,10 @@ int main(int argc, char* argv[]){
 
 	while(opcao != 'e'){  //Laço de repetição do menu
 		
-    // Lê uma opcao de funcionalidade;
-		
+    
+		// Lê uma opcao de funcionalidade;
 		cin >> opcao;
-		//scanf(" %c",&opcao);
-		cin.ignore();
+		cin.ignore(); //Ignorar '\n';
 
 		switch(opcao){
 			//////////////////////////////////////////////////////////////////////////////////////
@@ -397,7 +445,7 @@ int main(int argc, char* argv[]){
 							break;	
 						}
 			//////////////////////////////////////////////////////////////////////////////////////			
-				case 'c':{
+				case 'c':{ //Consulta de chaves e valores
 							
 							cin.getline(entrada,100);				 
 							if(cin.gcount() < 20){   //se forem < (20 caracteres + '\n')
@@ -410,11 +458,11 @@ int main(int argc, char* argv[]){
 						}
 
 					//DEBUG - REMOVER DEPOIS
-					case 'p':{  //Opcao de print dos registros;
+					/*case 'p':{  //Opcao de print dos registros;
 							exibirRegistros(arquivo);
 							cout << "//////////////////////////////////////////" << endl;
 							break;	
-						}
+						}*/
 			//////////////////////////////////////////////////////////////////////////////////////			
 				case 'e':{ //Opcao de fim de programa;
 							break;	

@@ -11,6 +11,9 @@ falta:
 -verificar o preenchimento de string na limpeza da inserção
 -verificar a remoção de uma dada chave (evitar que chaves diferentes com mesmo hash sejam excluídas)
 -ver debugs
+-se for usar encadeamento, ver forma alternativa de remoção sem tanto swap (pode ser usando um 3o status (DELETADO) ou usando paginas (blocos de registros) ao inves
+de cada registro (similar a arvore-B)
+
 
 67280421310721
 9,223,372,036,854,775,807 long long
