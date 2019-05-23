@@ -17,8 +17,8 @@ using namespace std;
 class Registro{
     public:
         
-        char chave[20];
-        char valor[50];
+        char chave[21];
+        char valor[51];
         int status;
         long long int anterior,proximo; //Apontador para próximo registro que tenha mesmo hash (-1 indica ausência de valor seguinte);
 

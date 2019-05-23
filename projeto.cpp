@@ -95,8 +95,8 @@ void inserirRegistro(fstream &arquivo, Registro *reg, bool swt){
 							arquivo.flush();
 
 							 //Limpando;
-							string clean_chave (20,'\x00');
-							string clean_valor(50,'\x00');
+							string clean_chave (21,'\x00');
+							string clean_valor(51,'\x00');
 							strcpy(reg->chave,clean_chave.c_str());
 							strcpy(reg->valor,clean_valor.c_str());
 							break;
@@ -125,8 +125,8 @@ void inserirRegistro(fstream &arquivo, Registro *reg, bool swt){
 							arquivo.flush();
 
 							 //Limpando;
-							string clean_chave (20,'\x00');
-							string clean_valor(50,'\x00');
+							string clean_chave (21,'\x00');
+							string clean_valor(51,'\x00');
 							strcpy(reg->chave,clean_chave.c_str());
 							strcpy(reg->valor,clean_valor.c_str());
 							break;
@@ -510,7 +510,9 @@ int main(int argc, char* argv[]){
 			string chave, valor, linha;
 			arquivo_inicial >> linha;
 			chave = linha.substr(0, linha.find(','));
+			cout << chave << endl;
 			valor = linha.substr(linha.find(',') + 1, string::npos);
+			cout << valor << endl;
 			Registro * reg = new Registro(chave.c_str(), valor.c_str(), -1, -1, OCUPADO);
 			inserirRegistro(arquivo, reg, swt);
 			swt = !swt;
@@ -543,6 +545,8 @@ int main(int argc, char* argv[]){
 			//////////////////////////////////////////////////////////////////////////////////////
 				case 'i': { //Inserção;
 							cin >> str; //Lê valor para regist->chave;
+							cout << str;
+							
 						
                            // cin.clear();
                             //cin.ignore();
@@ -554,7 +558,7 @@ int main(int argc, char* argv[]){
 								strncpy(regist->chave,str.c_str(), 20);	  //Caso o nome tenha mais de 20 caracteres, pega
 							}*/
 
-                            strcpy(regist->chave,str.c_str());
+                            strncpy(regist->chave,str.c_str(), 21);
 
                        
 
@@ -568,7 +572,7 @@ int main(int argc, char* argv[]){
 							}*/
                 
 							
-                            strcpy(regist->valor, str2.c_str());
+                            strncpy(regist->valor, str2.c_str(), 50);
                             
 							//tenta inserir novo registro na tabela
 							inserirRegistro(arquivo, regist, swt);
