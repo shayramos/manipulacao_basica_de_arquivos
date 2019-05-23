@@ -455,7 +455,13 @@ void exibirRegistros(fstream &arquivo){
 ///////////////// Função principal
 int main(int argc, char* argv[]){
 	
+
 	fstream arquivo_inicial; //Arquivo de dados inicial (será buscado caso seja passado como parâmetro);
+	if (argc > 1) {
+		arquivo_inicial.open(argv[1], ios_base::in);
+	}
+
+	 
 	fstream arquivo; //Objeto para leitura/escrita;
 	
 	
@@ -495,6 +501,19 @@ int main(int argc, char* argv[]){
 	if(tamanho == 0){
 		for(int i = 0 ; i < TAMANHO; i++){
 			arquivo.write((char*)regist, sizeof(Registro)); //Escreve 'TAMANHO' vezes no arquivo vazio (cada posição armazena um único registro neste caso de linear probing);
+		}
+	}
+
+	if (argc > 1) {
+		while (!arquivo_inicial.eof()) {
+			bool swt = 0;
+			string chave, valor, linha;
+			arquivo_inicial >> linha;
+			chave = linha.substr(0, linha.find(','));
+			valor = linha.substr(linha.find(',') + 1, string::npos);
+			Registro * reg = new Registro(chave.c_str(), valor.c_str(), -1, -1, OCUPADO);
+			inserirRegistro(arquivo, reg, swt);
+			swt = !swt;
 		}
 	}
 
