@@ -492,8 +492,6 @@ int main(int argc, char* argv[]){
 	
 	// "regist" é um registro-auxiliar (servirá de buffer de escrita e remoção de registros);
 	Registro* regist = new Registro("", "", -1, -1, VAZIO );  //Lembrando que '-1' = lambda (proximo)
-	
-
 
 	//Se o arquivo for vazio (criado agora), insere as posições de registros-vazios;
 	if(tamanho == 0){
@@ -501,93 +499,122 @@ int main(int argc, char* argv[]){
 			arquivo.write((char*)regist, sizeof(Registro)); //Escreve 'TAMANHO' vezes no arquivo vazio (cada posição armazena um único registro neste caso de linear probing);
 		}
 	}
-
-	
 /*
-*
-*
-*
 		Menu do sistema (não tem exibição de texto)
 */
+	if (argc != 2){
+	//CASO A ENTRADA NÃO SEJA ATRAVÉS DE ARQUIVO
 
-	//unsigned int buffer_chave; //Armazena os valores de chave provisoriamente (usado em consulta);
-	char opcao = 'm'; //Armazena opcao do menu ('m' é um valor aleatório de inicializacao);
-	char entrada[100]; //Armazena o nome no caso de inserção (variável auxiliar p/ filtragem da quantidade de caracteres);
-    bool swt = 0;
+		//unsigned int buffer_chave; //Armazena os valores de chave provisoriamente (usado em consulta);
+		char opcao = 'm'; //Armazena opcao do menu ('m' é um valor aleatório de inicializacao);
+		char entrada[100]; //Armazena o nome no caso de inserção (variável auxiliar p/ filtragem da quantidade de caracteres);
+		bool swt = 0;
 
-	while(opcao != 'e'){  //Laço de repetição do menu
-		
-    
-		// Lê uma opcao de funcionalidade;
-		cin >> opcao;
-		cin.ignore(); //Ignorar '\n';
+		while(opcao != 'e'){  //Laço de repetição do menu
+			
+			// Lê uma opcao de funcionalidade;
+			cin >> opcao;
+			cin.ignore(); //Ignorar '\n';
 
-		switch(opcao){
+			switch(opcao){
 			//////////////////////////////////////////////////////////////////////////////////////
 				case 'i': { //Inserção;
-							cin.getline(entrada,100);
-							
-							if(cin.gcount() < 20){   //se forem < (20 caracteres + '\n')
-								strncpy(regist->chave, entrada, cin.gcount());  
-							}else{												  
-								strncpy(regist->chave,entrada, 20);	  //Caso o nome tenha mais de 20 caracteres, pega
-							}			
+					cin.getline(entrada,100);
+					
+					if(cin.gcount() < 20){   //se forem < (20 caracteres + '\n')
+						strncpy(regist->chave, entrada, cin.gcount());  
+					}else{												  
+						strncpy(regist->chave,entrada, 20);	  //Caso o nome tenha mais de 20 caracteres, pega
+					}			
 
 
-							cin.getline(entrada,100); //Foi utilizado uma variável extra para leitura dos 20 caracteres de limite
-							if(cin.gcount() < 50){   // pois estava ocorrendo um loop infinito.
-								strncpy(regist->valor, entrada, cin.gcount());  
-							}else{												  
-								strncpy(regist->valor,entrada,50);	  //Caso o nome tenha mais de 20 caracteres, pega
-							}										//somente os 20 primeiros
-							
-							//tenta inserir novo registro na tabela
-							inserirRegistro(arquivo, regist, swt);
-                            swt = !swt; //Alterna valor de swt (switch)
-							break;
-							
-						  }
+					cin.getline(entrada,100); //Foi utilizado uma variável extra para leitura dos 20 caracteres de limite
+					if(cin.gcount() < 50){   // pois estava ocorrendo um loop infinito.
+						strncpy(regist->valor, entrada, cin.gcount());  
+					}else{												  
+						strncpy(regist->valor,entrada,50);	  //Caso o nome tenha mais de 20 caracteres, pega
+					}										//somente os 20 primeiros
+					
+					//tenta inserir novo registro na tabela
+					inserirRegistro(arquivo, regist, swt);
+					swt = !swt; //Alterna valor de swt (switch)
+					break;
+				}
 			//////////////////////////////////////////////////////////////////////////////////////			  
 				case 'r':{
-							cin.getline(entrada,100);
-							if(cin.gcount() < 20){   //se forem < (20 caracteres + '\n')
-								strncpy(regist->chave, entrada, cin.gcount());  
-							}else{												  
-								strncpy(regist->chave,entrada, 20);	  //Caso o nome tenha mais de 20 caracteres, pega
-							}		
-							removerRegistro(arquivo,regist->chave);
-							break;	
-						}
+					cin.getline(entrada,100);
+					if(cin.gcount() < 20){   //se forem < (20 caracteres + '\n')
+						strncpy(regist->chave, entrada, cin.gcount());  
+					}else{												  
+						strncpy(regist->chave,entrada, 20);	  //Caso o nome tenha mais de 20 caracteres, pega
+					}		
+					removerRegistro(arquivo,regist->chave);
+					break;	
+				}
 			//////////////////////////////////////////////////////////////////////////////////////			
 				case 'c':{ //Consulta de chaves e valores
-							
-							cin.getline(entrada,100);				 
-							if(cin.gcount() < 20){   //se forem < (20 caracteres + '\n')
-								strncpy(regist->chave, entrada, cin.gcount());  
-							}else{												  
-								strncpy(regist->chave,entrada, 20);	  //Caso o nome tenha mais de 20 caracteres, pega
-							}					
-							consultarRegistro(arquivo, regist->chave);
-							break;	
-						}
 
-					//DEBUG - REMOVER DEPOIS
-					case 'p':{  //Opcao de print dos registros;
-							exibirRegistros(arquivo);
-							cout << "//////////////////////////////////////////" << endl;
-							break;	
-						}
+					cin.getline(entrada,100);
+					if(cin.gcount() < 20){   //se forem < (20 caracteres + '\n')
+						strncpy(regist->chave, entrada, cin.gcount());
+					}else{
+						strncpy(regist->chave,entrada, 20);	  //Caso o nome tenha mais de 20 caracteres, pega
+					}
+					consultarRegistro(arquivo, regist->chave);
+					break;	
+				}
+
+			//DEBUG - REMOVER DEPOIS
+				case 'p':{  //Opcao de print dos registros;
+					// exibirRegistros(arquivo);
+					cout << "//////////////////////////////////////////" << endl;
+					break;
+				}
 			//////////////////////////////////////////////////////////////////////////////////////			
 				case 'e':{ //Opcao de fim de programa;
-							break;	
-						}
-			
+					break;
+				}
+
 			///////////////////////////////////////////
-			default:{ //Qualquer outra opcao serah considerada como invalida;
-						break;
-					}
-		 }	
-	 }
+				default:{ //Qualquer outra opcao serah considerada como invalida;
+					break;
+				}
+			}
+		}
+	}else{
+		//CASO A ENTRADA SEJA ATRAVÉS DE ARQUIVO
+		
+		// We assume argv[1] is a filename to open
+		ifstream file_in(argv[1]); //Objeto para leitura;
+
+		// Checkar se o arquivo abriu com sucesso
+		if (!file_in.is_open()){
+			cout << "Could not open file\n";
+			return 0;
+		}
+
+		// bool swt = 0;
+
+		std::string linha, token;
+		vector<string> srt;
+		while (std::getline(file_in, linha)){
+			std::stringstream ss(linha);
+			//INSERIR REGISTROS PELO ARQUIVO DE ESTADO INICIAL
+			//////////////////////////////////////////////////////////////////////////////////////
+			while(getline(ss,token,',')){
+				srt.push_back(token);
+			}
+			strcpy(regist->chave, srt[0].c_str());
+			//chave e tamanho associado
+			cout << regist->chave << "  ";// " : "/<< processAlphabeticKey(regist->chave) << endl;
+			strcpy(regist->valor, srt[1].c_str());
+			srt.clear();
+			//tenta inserir novo registro na tabela
+			inserirRegistro(arquivo, regist, 0);
+			// swt = !swt; //Alterna valor de swt (switch)
+		}
+		file_in.close();
+	}
 
 	// Fecha o arquivo;
 	arquivo.close();
