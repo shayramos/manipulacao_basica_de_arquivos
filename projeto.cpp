@@ -428,7 +428,7 @@ void consultarRegistro(fstream &arquivo, const char* chave){
   //APAGUE ESTE MÉTODO (É SOMENTE PARA DEBUG!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!);
 //Exibe todos os registros
 
-/*void exibirRegistros(fstream &arquivo){
+void exibirRegistros(fstream &arquivo){
 	Registro* buffer = new Registro("","",-1,-1,VAZIO);
 
 
@@ -448,7 +448,7 @@ void consultarRegistro(fstream &arquivo, const char* chave){
 		cout << "status: " << buffer->status << endl;
 	}while(arquivo.tellg()!= tamanho);
 	delete buffer;
-}*/
+}
 
 
 
@@ -459,10 +459,6 @@ int main(int argc, char* argv[]){
 	fstream arquivo; //Objeto para leitura/escrita;
 	
 	
-
-    //Versão com formato binário
-	//arquivo.open("database.bin", ios_base::in | ios_base::out | ios_base::binary ); //Abre o arquivo se já existir ou cria um novo caso contrário
-
 
 	arquivo.open("database.bin", ios_base::in | ios_base::out | ios_base::binary); //Abre o arquivo se já existir ou cria um novo caso contrário
 	if(!arquivo.is_open()){
@@ -512,61 +508,76 @@ int main(int argc, char* argv[]){
 
 	//unsigned int buffer_chave; //Armazena os valores de chave provisoriamente (usado em consulta);
 	char opcao = 'm'; //Armazena opcao do menu ('m' é um valor aleatório de inicializacao);
-	char entrada[100]; //Armazena o nome no caso de inserção (variável auxiliar p/ filtragem da quantidade de caracteres);
+	//char entrada[100]; //Armazena o nome no caso de inserção (variável auxiliar p/ filtragem da quantidade de caracteres);
     bool swt = 0;
+    string str(20,'\x00');
+    string str2(50,'\x00');
 
 	while(opcao != 'e'){  //Laço de repetição do menu
 		
-    
+        cin.clear();
 		// Lê uma opcao de funcionalidade;
 		cin >> opcao;
-		cin.ignore(); //Ignorar '\n';
-
+      
+        
 		switch(opcao){
 			//////////////////////////////////////////////////////////////////////////////////////
 				case 'i': { //Inserção;
-							cin.getline(entrada,100);
+							cin >> str; //Lê valor para regist->chave;
+						
+                           // cin.clear();
+                            //cin.ignore();
 							
-							if(cin.gcount() < 20){   //se forem < (20 caracteres + '\n')
-								strncpy(regist->chave, entrada, cin.gcount());  
+                            /*
+                            if(str.size() < 20){   //se forem < (20 caracteres + '\n')
+								strncpy(regist->chave, str.c_str(), str.size());  
 							}else{												  
-								strncpy(regist->chave,entrada, 20);	  //Caso o nome tenha mais de 20 caracteres, pega
-							}			
+								strncpy(regist->chave,str.c_str(), 20);	  //Caso o nome tenha mais de 20 caracteres, pega
+							}*/
 
+                            strcpy(regist->chave,str.c_str());
 
-							cin.getline(entrada,100); //Foi utilizado uma variável extra para leitura dos 20 caracteres de limite
-							if(cin.gcount() < 50){   // pois estava ocorrendo um loop infinito.
-								strncpy(regist->valor, entrada, cin.gcount());  
+                       
+
+							cin >> str2; //Lê valor para regist->valor;
+							//cin.clear();
+                            
+                            /* if(str.size() < 50){   //se forem < (20 caracteres + '\n')
+								strncpy(regist->valor, str.c_str(), str.size());  
 							}else{												  
-								strncpy(regist->valor,entrada,50);	  //Caso o nome tenha mais de 20 caracteres, pega
-							}										//somente os 20 primeiros
+								strncpy(regist->valor,str.c_str(), 50);	  //Caso o nome tenha mais de 20 caracteres, pega
+							}*/
+                
 							
+                            strcpy(regist->valor, str2.c_str());
+                            
 							//tenta inserir novo registro na tabela
 							inserirRegistro(arquivo, regist, swt);
+                            str.clear();
+                            str2.clear();
                             swt = !swt; //Alterna valor de swt (switch)
 							break;
 							
 						  }
 			//////////////////////////////////////////////////////////////////////////////////////			  
 				case 'r':{
-							cin.getline(entrada,100);
-							if(cin.gcount() < 20){   //se forem < (20 caracteres + '\n')
-								strncpy(regist->chave, entrada, cin.gcount());  
-							}else{												  
-								strncpy(regist->chave,entrada, 20);	  //Caso o nome tenha mais de 20 caracteres, pega
-							}		
+							cin >> str; //Lê valor para regist->chave;
+						
+                            //cin.clear();
+                            strcpy(regist->chave, str.c_str());     
+                                                                             
 							removerRegistro(arquivo,regist->chave);
-							break;	
+							str.clear();  
+                            break;	
 						}
 			//////////////////////////////////////////////////////////////////////////////////////			
 				case 'c':{ //Consulta de chaves e valores
 							
-							cin.getline(entrada,100);				 
-							if(cin.gcount() < 20){   //se forem < (20 caracteres + '\n')
-								strncpy(regist->chave, entrada, cin.gcount());  
-							}else{												  
-								strncpy(regist->chave,entrada, 20);	  //Caso o nome tenha mais de 20 caracteres, pega
-							}					
+							cin >> str; //Lê valor para regist->chave;
+                            //cin.clear();
+
+                            strcpy(regist->chave, str.c_str());
+                            str.clear();
 							consultarRegistro(arquivo, regist->chave);
 							break;	
 						}
@@ -587,6 +598,7 @@ int main(int argc, char* argv[]){
 						break;
 					}
 		 }	
+         
 	 }
 
 	// Fecha o arquivo;
