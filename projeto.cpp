@@ -3,28 +3,13 @@
 // Author      : Aline / Fernando / Hugo
 // Version     : 1.0
 // Copyright   : GPL
-// Description : Gerencia de arquivo com chave/valor
+// Description : Gerencia de arquivo com chave/valor (busca por chave)
 //============================================================================
 #include "estrutura.h"
 
-
-
 /*
-Hashing com encadeamento open-addressing
--> colocar para verificar se a chave buscada bate com a chave do registro em todos os casos (evitar casos
-de colisão de hash e acabar imprimindo registros erroneos);
-
-
+Hashing com encadeamento open-addressing para inserção de conjuntos chave/valor em registros;
 */
-
-
-//APAGAR ESTA FUNÇÃO!!!!!!!!!!!!!!!!!!!!!! DEBUG
-string statusText(int status){
-	return (status)? "Ocupado" : "Vazio";
-}
-
-
-
 
 
 
@@ -430,34 +415,6 @@ void consultarRegistro(fstream &arquivo, const char* chave){
 }
 
 
-
-  //APAGUE ESTE MÉTODO (É SOMENTE PARA DEBUG!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!);
-//Exibe todos os registros
-
-void exibirRegistros(fstream &arquivo){
-	Registro* buffer = new Registro("","",-1,-1,VAZIO);
-
-
-	int tamanho; 
-	arquivo.seekg(0,ios_base::end); //'tamanho' armazena a posição final do arquivo;
-    tamanho = arquivo.tellg();
-	arquivo.seekg(0, ios_base::beg);
-
-
-	do{
-		arquivo.read((char*)buffer,sizeof(Registro));
-		cout << "/////////////////// Registro " << (arquivo.tellg()/sizeof(Registro)) -1  << "///////////////////////" << endl;
-		cout << "chave: " << buffer->chave << endl;
-		cout << "valor: " << buffer->valor << endl;
-		cout << "anterior: " << buffer->anterior << endl;
-		cout << "proximo: " << buffer->proximo << endl;
-		cout << "status: " << statusText(buffer->status) << endl;
-	}while(arquivo.tellg()!= tamanho);
-	delete buffer;
-}
-
-
-
 ///////////////// Função principal
 int main(int argc, char* argv[]){
 	
@@ -559,32 +516,13 @@ int main(int argc, char* argv[]){
 				case 'i': { //Inserção;
                             cin.ignore();
 							cin.clear();
-							/*cin >> str; //Lê valor para regist->chave;
-						
-                            
-                            if(str.size() <= TAM_CHAVE){   //se forem < (TAM_CHAVE caracteres + '\n')
-								strncpy(regist->chave, str.c_str(), str.size());  
-							}else{												  
-								strncpy(regist->chave,str.c_str(), TAM_CHAVE);	  //Caso o nome tenha mais de TAM_CHAVE caracteres, pega
-							}
-
-
-							cin.clear();
-							cin >> str2; //Lê valor para regist->valor;
-							
-                            
-                            if(str2.size() <= TAM_VALOR){   //se forem < (TAM_CHAVE caracteres + '\n')
-								strncpy(regist->valor, str2.c_str(), str2.size());  
-							}else{												  
-								strncpy(regist->valor,str2.c_str(), TAM_VALOR);	  //Caso o nome tenha mais de TAM_CHAVE caracteres, pega
-							}*/
+			
 							cin.getline(ent,100);
-							//cin.ignore();
-							//cin.clear();
+						
 							strncpy(regist->chave, ent, TAM_CHAVE-1);
 
-							cin.getline(ent,100);
-							//cin.ignore();
+
+							cin.getline(ent,100);							
 							cin.clear();
 							strncpy(regist->valor,ent,TAM_VALOR-1);
 
@@ -603,19 +541,8 @@ int main(int argc, char* argv[]){
 
 							strncpy(regist->chave, ent, TAM_CHAVE-1);
 
-							
-							/*cin.clear();
-                            cin >> str; //Lê valor para regist->chave;
-						
-                            if(str.size() <= TAM_CHAVE){   //se forem < (TAM_CHAVE caracteres + '\n')
-								strncpy(regist->chave, str.c_str(), str.size());  
-							}else{												  
-								strncpy(regist->chave,str.c_str(), TAM_CHAVE);	  //Caso o nome tenha mais de TAM_CHAVE caracteres, pega
-							}
-
-                            cin.clear();*/
 							removerRegistro(arquivo,regist->chave);
-							//str.clear();  
+							
                             break;	
 						}
 			//////////////////////////////////////////////////////////////////////////////////////			
@@ -626,28 +553,13 @@ int main(int argc, char* argv[]){
 							cin.getline(ent,100);
 
 							strncpy(regist->chave, ent, TAM_CHAVE-1);
-							/*cin.clear();
-							cin >> str; //Lê valor para regist->chave;
-                            
-                            if(str.size() <= TAM_CHAVE){   //se forem < (TAM_CHAVE caracteres + '\n')
-								strncpy(regist->chave, str.c_str(), str.size());  
-							}else{												  
-								strncpy(regist->chave,str.c_str(), TAM_CHAVE);	  //Caso o nome tenha mais de TAM_CHAVE caracteres, pega
-							}
-                            //strcpy(regist->chave, str.c_str());
-                            cin.clear();*/
+
 
 							consultarRegistro(arquivo, regist->chave);
-                            //str.clear();
+                           
 							break;	
 						}
 
-					//DEBUG - REMOVER DEPOIS
-					case 'p':{  //Opcao de print dos registros;
-							exibirRegistros(arquivo);
-							cout << "//////////////////////////////////////////" << endl;
-							break;	
-						}
 			//////////////////////////////////////////////////////////////////////////////////////			
 				case 'e':{ //Opcao de fim de programa;
 							break;	
