@@ -13,7 +13,7 @@ Hashing com encadeamento open-addressing para inserção de conjuntos chave/valo
 
 
 
-//Função p/ converter string 'chave' em uint e calcular Hash H = val MOD TAMANHO ( long long int);
+//Função p/ converter string 'chave' em long long int e calcular Hash H = val MOD TAMANHO (long long int);
   long long int HashString(const char* texto){
 		string str = texto;
 		 
@@ -366,22 +366,16 @@ void removerRegistro(fstream &arquivo, const char* chave){
                             arquivo.write((char*)buff_extra, sizeof(Registro));
                             arquivo.flush();
 
-                            buffer->anterior = -1;
-						    buffer->proximo = -1;
-						    buffer->status = VAZIO;
-                		    arquivo.seekp(HEADER_OFFSET + index_swap); //Vai para a posição "proximo" para finalizar o swap
-                            arquivo.write((char*)buffer, sizeof(Registro));
-						    arquivo.flush();
 
-                        }else{ //Caso seja um elemento único;
-                                       
+                        }
+                            //Limpeza do registro;           
                             buffer->anterior = -1;
 						    buffer->proximo = -1;
 						    buffer->status = VAZIO;
-                            arquivo.seekp(HEADER_OFFSET + index_swap); //Vai para a posição "proximo" para finalizar o swap
+                            arquivo.seekp(HEADER_OFFSET + index_swap); 
                             arquivo.write((char*)buffer, sizeof(Registro));
 						    arquivo.flush();
-                        }
+						
 
 					}
 			}
@@ -507,9 +501,11 @@ int main(int argc, char* argv[]){
 	char ent[100];
 	while(opcao != 'e'){  //Laço de repetição do menu
 		
-        cin.clear();
+    
+		cin.clear();
 		// Lê uma opcao de funcionalidade;
 		cin >> opcao;
+		
         
 		switch(opcao){
 			//////////////////////////////////////////////////////////////////////////////////////
@@ -530,6 +526,7 @@ int main(int argc, char* argv[]){
                             //tenta inserir novo registro na tabela
                             inserirRegistro(arquivo, regist, swt);
                             swt = !swt; //Alterna valor de swt;
+							
 							break;
 							
 						  }
@@ -556,7 +553,7 @@ int main(int argc, char* argv[]){
 
 
 							consultarRegistro(arquivo, regist->chave);
-                           
+							
 							break;	
 						}
 
