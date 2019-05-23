@@ -2,5 +2,4 @@
 all: projeto
 
 projeto: projeto.cpp estrutura.cpp estrutura.h
-	g++ -std=c++11 -o projeto projeto.cpp estrutura.cpp
-    
+	g++ -std=c++11 -o projeto projeto.cpp estrutura.cpp  

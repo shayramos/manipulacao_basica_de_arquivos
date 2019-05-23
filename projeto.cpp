@@ -16,10 +16,23 @@ de colisão de hash e acabar imprimindo registros erroneos);
 
 
 */
-//Função p/ converter string 'chave' em uint e calcular Hash H = val MOD TAMANHO (unsigned long long int);
-unsigned long long int HashString(const char* texto){
+
+
+//APAGAR ESTA FUNÇÃO!!!!!!!!!!!!!!!!!!!!!! DEBUG
+string statusText(int status){
+	return (status)? "Ocupado" : "Vazio";
+}
+
+
+
+
+
+
+//Função p/ converter string 'chave' em uint e calcular Hash H = val MOD TAMANHO ( long long int);
+  long long int HashString(const char* texto){
 		string str = texto;
-		unsigned long long int hash = 0;
+		 
+		 long long int hash = 0;
 		// A constante '31' se refere ao número 2^n -1 quando n=5 (número primo de Marsenne)
 		for(string::iterator it = str.begin(); it != str.end(); it++){
 			hash = (31*hash + *(it)) % TAMANHO; 
@@ -34,7 +47,7 @@ unsigned long long int HashString(const char* texto){
 void inserirRegistro(fstream &arquivo, Registro *reg, bool swt){
 
 		//Calcula a posição ideal da chave de reg;
-		unsigned long long int hash_calculado = HashString(reg->chave);
+		 long long int hash_calculado = HashString(reg->chave);
 		//Buffer para leitura do arquivo e comparação com reg;
 		Registro* buffer = new Registro("","", -1, -1,VAZIO);
 
@@ -46,7 +59,7 @@ void inserirRegistro(fstream &arquivo, Registro *reg, bool swt){
 
 		if(buffer->status == OCUPADO){
 				//Verificar se o registro na posição é "dono dela";
-				unsigned long long int hash_local = HashString(buffer->chave);
+				 long long int hash_local = HashString(buffer->chave);
 
 				if(hash_local == hash_calculado){ //Se a posição atual for dona do lugar
 					long long int i, index_next, pos_buffer, pos_anterior;
@@ -66,7 +79,6 @@ void inserirRegistro(fstream &arquivo, Registro *reg, bool swt){
 					
 
 					//A partir daqui, buffer estará armazenando o último elemento da lista encadeada com
-					//hash_local == hash_calculado;
 
 					//buffer extra p/ varredura;
 					Registro *buff_extra = new Registro("", "", -1, -1, VAZIO);
@@ -95,10 +107,10 @@ void inserirRegistro(fstream &arquivo, Registro *reg, bool swt){
 							arquivo.flush();
 
 							 //Limpando;
-							string clean_chave (21,'\x00');
-							string clean_valor(51,'\x00');
-							strcpy(reg->chave,clean_chave.c_str());
-							strcpy(reg->valor,clean_valor.c_str());
+							string clean_chave (TAM_CHAVE,'\x00');
+							string clean_valor(TAM_VALOR,'\x00');
+							strncpy(reg->chave,clean_chave.c_str(), TAM_CHAVE);
+							strncpy(reg->valor,clean_valor.c_str(), TAM_VALOR);
 							break;
 						}
 						
@@ -125,10 +137,10 @@ void inserirRegistro(fstream &arquivo, Registro *reg, bool swt){
 							arquivo.flush();
 
 							 //Limpando;
-							string clean_chave (21,'\x00');
-							string clean_valor(51,'\x00');
-							strcpy(reg->chave,clean_chave.c_str());
-							strcpy(reg->valor,clean_valor.c_str());
+							string clean_chave (TAM_CHAVE,'\x00');
+							string clean_valor(TAM_VALOR,'\x00');
+							strncpy(reg->chave,clean_chave.c_str(),TAM_CHAVE);
+							strncpy(reg->valor,clean_valor.c_str(),TAM_VALOR);
 							break;
 						}
 						
@@ -189,10 +201,10 @@ void inserirRegistro(fstream &arquivo, Registro *reg, bool swt){
 							arquivo.flush();
 
 							//Limpando;
-							string clean_chave (20,'\x00');
-							string clean_valor(50,'\x00');
-							strcpy(reg->chave,clean_chave.c_str());
-							strcpy(reg->valor,clean_valor.c_str());
+							string clean_chave (TAM_CHAVE,'\x00');
+							string clean_valor(TAM_VALOR,'\x00');
+							strncpy(reg->chave,clean_chave.c_str(),TAM_CHAVE);
+							strncpy(reg->valor,clean_valor.c_str(),TAM_VALOR);
 							break;
 						
 						}
@@ -232,10 +244,10 @@ void inserirRegistro(fstream &arquivo, Registro *reg, bool swt){
 							arquivo.flush();
 
 							//Limpando;
-							string clean_chave (20,'\x00');
-							string clean_valor(50,'\x00');
-							strcpy(reg->chave,clean_chave.c_str());
-							strcpy(reg->valor,clean_valor.c_str());
+							string clean_chave (TAM_CHAVE,'\x00');
+							string clean_valor(TAM_VALOR,'\x00');
+							strncpy(reg->chave,clean_chave.c_str(),TAM_CHAVE);
+							strncpy(reg->valor,clean_valor.c_str(),TAM_VALOR);
 							break;
 						
 						}
@@ -255,22 +267,16 @@ void inserirRegistro(fstream &arquivo, Registro *reg, bool swt){
 			arquivo.flush();
 
 			//Limpando reg:
-			string clean_chave (20,'\x00');
-			string clean_valor(50,'\x00');
-			strcpy(reg->chave,clean_chave.c_str());
-			strcpy(reg->valor,clean_valor.c_str());
+			string clean_chave (TAM_CHAVE,'\x00');
+			string clean_valor(TAM_VALOR,'\x00');
+			strncpy(reg->chave,clean_chave.c_str(), TAM_CHAVE);
+			strncpy(reg->valor,clean_valor.c_str(), TAM_VALOR);
             reg->anterior = -1;
             reg->proximo = -1;
             reg->status = VAZIO;
 		}
 		delete buffer;
 }
-
-
-
-
-
-
 
 
 //Protótipo 1 (apaga mesmo os ponteiros anterior e proximo) -> para casos onde não há conflito de chaves
@@ -283,19 +289,18 @@ void removerRegistro(fstream &arquivo, const char* chave){
 		 long long int hash_swap, posicao, index_next, index_swap;
 
 		//Será utilizado para "limpar" strings do registro
-		string clean_chave(20,'\x00');
-		string clean_valor(50,'\x00');
+		string clean_chave(TAM_CHAVE,'\x00');
+		string clean_valor(TAM_VALOR,'\x00');
 
 		do{
 			arquivo.seekg(HEADER_OFFSET + hash * sizeof(Registro));
 			arquivo.read((char*)buffer, sizeof(Registro));
 			arquivo.sync();
-
 			hash_swap = hash;  //Salva o valor atual do hash para apagar registro;
 			hash = buffer->proximo;	
 
             if(!strcmp(buffer->chave, chave)){ //Se a chave na posição for igual a que estamos procurando
-				        //Verificar se o registro a ser apagado tem valor "proximo" != -1:
+					    //Verificar se o registro a ser apagado tem valor "proximo" != -1:
 						//I) caso tenha, desloca esse proximo para a posição-raiz e apaga a posicao antiga do "proximo"
 						//II) caso nao tenha, basta apagar direto
 					
@@ -358,8 +363,8 @@ void removerRegistro(fstream &arquivo, const char* chave){
 					}else{
 						//Caso o valor de "proximo" == -1 (registro no fim da lista encadeada);
 							//Preenchendo com 0's os bytes de chave e valor;
-						strcpy(buffer->chave,clean_chave.c_str());
-						strcpy(buffer->valor,clean_valor.c_str());
+						strncpy(buffer->chave,clean_chave.c_str(), TAM_CHAVE);
+						strncpy(buffer->valor,clean_valor.c_str(), TAM_VALOR);
 						
                         
 
@@ -370,6 +375,7 @@ void removerRegistro(fstream &arquivo, const char* chave){
                             arquivo.sync();
 
                             buff_extra->proximo = -1; 
+							
                             
                             arquivo.seekp(HEADER_OFFSET + buffer->anterior*sizeof(Registro));
                             arquivo.write((char*)buff_extra, sizeof(Registro));
@@ -378,7 +384,7 @@ void removerRegistro(fstream &arquivo, const char* chave){
                             buffer->anterior = -1;
 						    buffer->proximo = -1;
 						    buffer->status = VAZIO;
-                		    arquivo.seekp(HEADER_OFFSET + index_next); //Vai para a posição "proximo" para finalizar o swap
+                		    arquivo.seekp(HEADER_OFFSET + index_swap); //Vai para a posição "proximo" para finalizar o swap
                             arquivo.write((char*)buffer, sizeof(Registro));
 						    arquivo.flush();
 
@@ -406,7 +412,7 @@ void removerRegistro(fstream &arquivo, const char* chave){
 void consultarRegistro(fstream &arquivo, const char* chave){
 		Registro *buffer = new Registro("","",-1,-1 ,VAZIO);
 
-		unsigned long long int hash = HashString(chave);
+		 long long int hash = HashString(chave);
 		
 		do{
 			arquivo.seekg(HEADER_OFFSET + hash*sizeof(Registro));
@@ -445,7 +451,7 @@ void exibirRegistros(fstream &arquivo){
 		cout << "valor: " << buffer->valor << endl;
 		cout << "anterior: " << buffer->anterior << endl;
 		cout << "proximo: " << buffer->proximo << endl;
-		cout << "status: " << buffer->status << endl;
+		cout << "status: " << statusText(buffer->status) << endl;
 	}while(arquivo.tellg()!= tamanho);
 	delete buffer;
 }
@@ -455,13 +461,7 @@ void exibirRegistros(fstream &arquivo){
 ///////////////// Função principal
 int main(int argc, char* argv[]){
 	
-
 	fstream arquivo_inicial; //Arquivo de dados inicial (será buscado caso seja passado como parâmetro);
-	if (argc > 1) {
-		arquivo_inicial.open(argv[1], ios_base::in);
-	}
-
-	 
 	fstream arquivo; //Objeto para leitura/escrita;
 	
 	
@@ -486,7 +486,7 @@ int main(int argc, char* argv[]){
 
 
 
-//AJUSTAR ESTE TRECHO!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+	//Verificar o tamanho do arquivo de base aberto (database.bin);
 	int tamanho = 0;
 	arquivo.seekg(0,ios_base::end); //Avança proximo até o último byte para que seja possível "medir" o arquivo;
 	tamanho = arquivo.tellg();
@@ -495,30 +495,42 @@ int main(int argc, char* argv[]){
 	// "regist" é um registro-auxiliar (servirá de buffer de escrita e remoção de registros);
 	Registro* regist = new Registro("", "", -1, -1, VAZIO );  //Lembrando que '-1' = lambda (proximo)
 	
-
-
 	//Se o arquivo for vazio (criado agora), insere as posições de registros-vazios;
 	if(tamanho == 0){
 		for(int i = 0 ; i < TAMANHO; i++){
-			arquivo.write((char*)regist, sizeof(Registro)); //Escreve 'TAMANHO' vezes no arquivo vazio (cada posição armazena um único registro neste caso de linear probing);
+			arquivo.write((char*)regist, sizeof(Registro)); //Escreve 'TAMANHO' vezes no arquivo vazio;
 		}
 	}
 
+
+	//Aqui será tratado o arquivo .txt entrado como parâmetro;
 	if (argc > 1) {
-		while (!arquivo_inicial.eof()) {
-			bool swt = 0;
+		arquivo_inicial.open(argv[1], ios_base::in | ios_base::binary);
+		
+		if(arquivo_inicial.is_open()){
+			
 			string chave, valor, linha;
-			arquivo_inicial >> linha;
-			chave = linha.substr(0, linha.find(','));
-			cout << chave << endl;
-			valor = linha.substr(linha.find(',') + 1, string::npos);
-			cout << valor << endl;
-			Registro * reg = new Registro(chave.c_str(), valor.c_str(), -1, -1, OCUPADO);
-			inserirRegistro(arquivo, reg, swt);
-			swt = !swt;
+			
+			while (!arquivo_inicial.eof()) {
+
+				bool swt = 0;
+				
+				arquivo_inicial >> linha;
+				if(arquivo_inicial.peek() != -1){//Se o próximo caractere for -1 (EOF), não executa;
+					
+					chave = linha.substr(0, linha.find(','));
+					valor = linha.substr(linha.find(',') + 1, string::npos);
+				
+					Registro * reg = new Registro(chave.c_str(), valor.c_str(), -1, -1, VAZIO);			
+				
+					inserirRegistro(arquivo, reg, swt);
+					swt = !swt;
+					delete reg;
+			  }
+			}
+			arquivo_inicial.close();
 		}
 	}
-
 	
 /*
 *
@@ -529,79 +541,104 @@ int main(int argc, char* argv[]){
 
 	//unsigned int buffer_chave; //Armazena os valores de chave provisoriamente (usado em consulta);
 	char opcao = 'm'; //Armazena opcao do menu ('m' é um valor aleatório de inicializacao);
-	//char entrada[100]; //Armazena o nome no caso de inserção (variável auxiliar p/ filtragem da quantidade de caracteres);
-    bool swt = 0;
-    string str(20,'\x00');
-    string str2(50,'\x00');
+    bool swt = 0; //Switch usado na inserção
+ 
+    string str;  //Strings auxiliares;
+    string str2;
 
+
+	char ent[100];
 	while(opcao != 'e'){  //Laço de repetição do menu
 		
         cin.clear();
 		// Lê uma opcao de funcionalidade;
 		cin >> opcao;
-      
         
 		switch(opcao){
 			//////////////////////////////////////////////////////////////////////////////////////
 				case 'i': { //Inserção;
-							cin >> str; //Lê valor para regist->chave;
-							cout << str;
-							
+                            cin.ignore();
+							cin.clear();
+							/*cin >> str; //Lê valor para regist->chave;
 						
-                           // cin.clear();
-                            //cin.ignore();
-							
-                            /*
-                            if(str.size() < 20){   //se forem < (20 caracteres + '\n')
+                            
+                            if(str.size() <= TAM_CHAVE){   //se forem < (TAM_CHAVE caracteres + '\n')
 								strncpy(regist->chave, str.c_str(), str.size());  
 							}else{												  
-								strncpy(regist->chave,str.c_str(), 20);	  //Caso o nome tenha mais de 20 caracteres, pega
-							}*/
+								strncpy(regist->chave,str.c_str(), TAM_CHAVE);	  //Caso o nome tenha mais de TAM_CHAVE caracteres, pega
+							}
 
-                            strncpy(regist->chave,str.c_str(), 21);
 
-                       
-
+							cin.clear();
 							cin >> str2; //Lê valor para regist->valor;
-							//cin.clear();
-                            
-                            /* if(str.size() < 50){   //se forem < (20 caracteres + '\n')
-								strncpy(regist->valor, str.c_str(), str.size());  
-							}else{												  
-								strncpy(regist->valor,str.c_str(), 50);	  //Caso o nome tenha mais de 20 caracteres, pega
-							}*/
-                
 							
-                            strncpy(regist->valor, str2.c_str(), 50);
                             
-							//tenta inserir novo registro na tabela
-							inserirRegistro(arquivo, regist, swt);
-                            str.clear();
-                            str2.clear();
-                            swt = !swt; //Alterna valor de swt (switch)
+                            if(str2.size() <= TAM_VALOR){   //se forem < (TAM_CHAVE caracteres + '\n')
+								strncpy(regist->valor, str2.c_str(), str2.size());  
+							}else{												  
+								strncpy(regist->valor,str2.c_str(), TAM_VALOR);	  //Caso o nome tenha mais de TAM_CHAVE caracteres, pega
+							}*/
+							cin.getline(ent,100);
+							//cin.ignore();
+							//cin.clear();
+							strncpy(regist->chave, ent, TAM_CHAVE-1);
+
+							cin.getline(ent,100);
+							//cin.ignore();
+							cin.clear();
+							strncpy(regist->valor,ent,TAM_VALOR-1);
+
+
+                            //tenta inserir novo registro na tabela
+                            inserirRegistro(arquivo, regist, swt);
+                            swt = !swt; //Alterna valor de swt;
 							break;
 							
 						  }
 			//////////////////////////////////////////////////////////////////////////////////////			  
 				case 'r':{
-							cin >> str; //Lê valor para regist->chave;
+							cin.ignore();
+							cin.clear();
+							cin.getline(ent,100);
+
+							strncpy(regist->chave, ent, TAM_CHAVE-1);
+
+							
+							/*cin.clear();
+                            cin >> str; //Lê valor para regist->chave;
 						
-                            //cin.clear();
-                            strcpy(regist->chave, str.c_str());     
-                                                                             
+                            if(str.size() <= TAM_CHAVE){   //se forem < (TAM_CHAVE caracteres + '\n')
+								strncpy(regist->chave, str.c_str(), str.size());  
+							}else{												  
+								strncpy(regist->chave,str.c_str(), TAM_CHAVE);	  //Caso o nome tenha mais de TAM_CHAVE caracteres, pega
+							}
+
+                            cin.clear();*/
 							removerRegistro(arquivo,regist->chave);
-							str.clear();  
+							//str.clear();  
                             break;	
 						}
 			//////////////////////////////////////////////////////////////////////////////////////			
 				case 'c':{ //Consulta de chaves e valores
 							
-							cin >> str; //Lê valor para regist->chave;
-                            //cin.clear();
+							cin.ignore();
+							cin.clear();
+							cin.getline(ent,100);
 
-                            strcpy(regist->chave, str.c_str());
-                            str.clear();
+							strncpy(regist->chave, ent, TAM_CHAVE-1);
+							/*cin.clear();
+							cin >> str; //Lê valor para regist->chave;
+                            
+                            if(str.size() <= TAM_CHAVE){   //se forem < (TAM_CHAVE caracteres + '\n')
+								strncpy(regist->chave, str.c_str(), str.size());  
+							}else{												  
+								strncpy(regist->chave,str.c_str(), TAM_CHAVE);	  //Caso o nome tenha mais de TAM_CHAVE caracteres, pega
+							}
+                            //strcpy(regist->chave, str.c_str());
+                            cin.clear();*/
+
 							consultarRegistro(arquivo, regist->chave);
+                            //str.clear();
 							break;	
 						}
 
