@@ -18,7 +18,7 @@ Hashing com encadeamento open-addressing para inserção de conjuntos chave/valo
 		string str = texto;
 		 
 		 long long int hash = 0;
-		// A constante '31' se refere ao número 2^n -1 quando n=5 (número primo de Marsenne)
+		// A constante '31' se refere ao número 2^n -1 quando n=5 (número primo de Mersenne)
 		for(string::iterator it = str.begin(); it != str.end(); it++){
 			hash = (31*hash + *(it)) % TAMANHO; 
 		}
