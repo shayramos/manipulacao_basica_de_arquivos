@@ -8,3 +8,4 @@ base:
 
 clean:
 	rm -f ./projeto
+	rm -f ./base.txt

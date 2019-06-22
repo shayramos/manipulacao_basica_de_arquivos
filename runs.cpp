@@ -22,7 +22,9 @@ std::shared_ptr<Registro> getNextElement(std::unique_ptr<Heap> & heap, std::fstr
     }
     fonte >> reg;
     reg2 = heap->heap_pop(); //retira a raiz do heap
-    heap->heap_push(reg); //insere o novo elemento
+
+    std::shared_ptr<ElementoHeap> elem2(new ElementoHeap(reg, *reg < *reg2)); //novo elemento, será marcado se o valor dele for menor que o anterior
+    heap->heap_push(elem2); //insere o novo elemento
 
     return reg2;
 }
